@@ -45,8 +45,8 @@ class PostResource extends Resource {
                 Section::make('Create a Post')
                     ->description('Create posts over here.')
                     ->schema([
-                        TextInput::make('title')->required(),
-                        TextInput::make('slug')->required(),
+                        TextInput::make('title')->minLength(3)->maxLength(10)->required(),
+                        TextInput::make('slug')->required()->unique(ignoreRecord: true),
                         Select::make('category_id')
                             ->options(Category::all()->pluck('name', 'id'))
                             ->label('Category')
@@ -61,7 +61,7 @@ class PostResource extends Resource {
                     ])->columnSpan(1),
                     Section::make('Meta')->schema([
                         TagsInput::make('tags')->required(),
-                        Checkbox::make('published')->required()
+                        Checkbox::make('published')
                     ])
                 ])
             ])->columns(3/* Responsive: [
