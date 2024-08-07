@@ -33,38 +33,37 @@ class PostResource extends Resource {
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form {
-        return $form
-            ->schema([
-                //* ColumnSpanFull() bütün row-u tutur.
-                //* Section card yaradır.
-                //* Section içindəki input-lar standard olaraq columnSpanFull olur.
-                //* make içindəki yazı card-ın başlığıdır.
-                //*description alt başlıqdır.
-                //* collapsible() card-ın açılıb bağlana bilməyini təmin edir.
-                //* aside() card başlıqlarını sola input-ları isə card daxilində sağa aparır. aside-da collapsible() işləmir.
-                Section::make('Create a Post')
-                    ->description('Create posts over here.')
-                    ->schema([
-                        TextInput::make('title')->minLength(3)->maxLength(10)->required(),
-                        TextInput::make('slug')->required()->unique(ignoreRecord: true),
-                        Select::make('category_id')
-                            ->options(Category::all()->pluck('name', 'id'))
-                            ->label('Category')
-                            ->required(),
-                        ColorPicker::make('color')->required(),
+        return $form->schema([
+            //* ColumnSpanFull() bütün row-u tutur.
+            //* Section card yaradır.
+            //* Section içindəki input-lar standard olaraq columnSpanFull olur.
+            //* make içindəki yazı card-ın başlığıdır.
+            //*description alt başlıqdır.
+            //* collapsible() card-ın açılıb bağlana bilməyini təmin edir.
+            //* aside() card başlıqlarını sola input-ları isə card daxilində sağa aparır. aside-da collapsible() işləmir.
+            Section::make('Create a Post')
+                ->description('Create posts over here.')
+                ->schema([
+                    TextInput::make('title')->minLength(3)->maxLength(10)->required(),
+                    TextInput::make('slug')->required()->unique(ignoreRecord: true),
+                    Select::make('category_id')
+                        ->options(Category::all()->pluck('name', 'id'))
+                        ->label('Category')
+                        ->required(),
+                    ColorPicker::make('color')->required(),
 
-                        MarkdownEditor::make('content')->required()->columnSpanFull(),
-                    ])->columnSpan(2)->columns(2),
-                Group::make()->schema([
-                    Section::make('Image')->collapsible()->schema([
-                        FileUpload::make('thumbnail')->disk('public')->directory('thumbnails'),
-                    ])->columnSpan(1),
-                    Section::make('Meta')->schema([
-                        TagsInput::make('tags')->required(),
-                        Checkbox::make('published')
-                    ])
+                    MarkdownEditor::make('content')->required()->columnSpanFull(),
+                ])->columnSpan(2)->columns(2),
+            Group::make()->schema([
+                Section::make('Image')->collapsible()->schema([
+                    FileUpload::make('thumbnail')->disk('public')->directory('thumbnails'),
+                ])->columnSpan(1),
+                Section::make('Meta')->schema([
+                    TagsInput::make('tags')->required(),
+                    Checkbox::make('published')
                 ])
-            ])->columns(3/* Responsive: [
+            ])
+        ])->columns(3/* Responsive: [
                 'default' => 1,
                 'md' => 2,
                 'lg' => 3,
@@ -73,21 +72,23 @@ class PostResource extends Resource {
     }
 
     public static function table(Table $table): Table {
-        return $table
-            ->columns([
-                ImageColumn::make('thumbnail'),
-                ColorColumn::make('color'),
-                TextColumn::make('title'),
-                TextColumn::make('slug'),
-                TextColumn::make('category.name'),
-                TextColumn::make('tags'),
-                CheckboxColumn::make('published')
-            ])
+        return $table->columns([
+            TextColumn::make('id')->sortable()->searchable()->toggleable(isToggledHiddenByDefault: true),
+            ImageColumn::make('thumbnail')->toggleable(),
+            ColorColumn::make('color')->toggleable(),
+            TextColumn::make('title')->sortable()->searchable()->toggleable(),
+            TextColumn::make('slug')->sortable()->searchable()->toggleable(),
+            TextColumn::make('category.name')->sortable()->searchable()->toggleable(),
+            TextColumn::make('tags')->toggleable(),
+            CheckboxColumn::make('published')->toggleable(),
+            TextColumn::make('created_at')->label('Published on')->date()->sortable()->searchable()->toggleable(),
+        ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
