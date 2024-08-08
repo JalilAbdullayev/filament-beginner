@@ -47,8 +47,9 @@ class PostResource extends Resource {
                     TextInput::make('title')->minLength(3)->maxLength(10)->required(),
                     TextInput::make('slug')->required()->unique(ignoreRecord: true),
                     Select::make('category_id')
-                        ->options(Category::all()->pluck('name', 'id'))
+                        ->relationship('category', 'name')
                         ->label('Category')
+                        ->searchable()
                         ->required(),
                     ColorPicker::make('color')->required(),
 
